@@ -31,6 +31,9 @@ class Network(object):
         ever used in computing the outputs from later layers."""
         self.num_layers = len(sizes)
         self.sizes = sizes
+        # take a 3-by-10-by-5 network for example
+        # biases will be a [[10-by-1], [5-by-1]] matrix
+        # weights will be a [[10-by-3], [5-by-10]] matrix
         self.biases = [np.random.randn(y, 1) for y in sizes[1:]]
         self.weights = [np.random.randn(y, x)
                         for x, y in zip(sizes[:-1], sizes[1:])]
@@ -52,9 +55,10 @@ class Network(object):
         epoch, and partial progress printed out.  This is useful for
         tracking progress, but slows things down substantially."""
         if test_data: n_test = len(test_data)
-        n = len(training_data)
+        n = len(training_data) # default training data size is 50,000
         for j in xrange(epochs):
             random.shuffle(training_data)
+            # mini_batches will be a [5000-by-1] matrix and each element contains (mini_batch_size * tuples(x,y))
             mini_batches = [
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
@@ -94,7 +98,7 @@ class Network(object):
         activations = [x] # list to store all the activations, layer by layer
         zs = [] # list to store all the z vectors, layer by layer
         for b, w in zip(self.biases, self.weights):
-            z = np.dot(w, activation)+b
+            z = np.dot(w, activation)+b # (30-by-784 * 784-by-1) + 30-by-1
             zs.append(z)
             activation = sigmoid(z)
             activations.append(activation)

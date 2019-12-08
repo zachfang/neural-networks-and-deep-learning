@@ -58,7 +58,8 @@ class Network(object):
         n = len(training_data) # default training data size is 50,000
         for j in xrange(epochs):
             random.shuffle(training_data)
-            # mini_batches will be a [5000-by-1] matrix and each element contains (mini_batch_size * tuples(x,y))
+            # assuming mini_batch_size is set to 10 and there are 50,000 tuples of data
+            # mini_batches will be a [5000-by-1] matrix and each element (mini-batch) contains (mini_batch_size * tuples(x,y))
             mini_batches = [
                 training_data[k:k+mini_batch_size]
                 for k in xrange(0, n, mini_batch_size)]
@@ -75,13 +76,13 @@ class Network(object):
         gradient descent using backpropagation to a single mini batch.
         The ``mini_batch`` is a list of tuples ``(x, y)``, and ``eta``
         is the learning rate."""
-        nabla_b = [np.zeros(b.shape) for b in self.biases]
+        nabla_b = [np.zeros(b.shape) for b in self.biases] # create temp zero biases and weights
         nabla_w = [np.zeros(w.shape) for w in self.weights]
         for x, y in mini_batch:
-            delta_nabla_b, delta_nabla_w = self.backprop(x, y)
-            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)]
+            delta_nabla_b, delta_nabla_w = self.backprop(x, y) # for each instance, calculate delta_w, delta_b
+            nabla_b = [nb+dnb for nb, dnb in zip(nabla_b, delta_nabla_b)] # accumulate the changes
             nabla_w = [nw+dnw for nw, dnw in zip(nabla_w, delta_nabla_w)]
-        self.weights = [w-(eta/len(mini_batch))*nw
+        self.weights = [w-(eta/len(mini_batch))*nw # use eta (learning rate) and batch size to update final b and w for each mini_batch iteration
                         for w, nw in zip(self.weights, nabla_w)]
         self.biases = [b-(eta/len(mini_batch))*nb
                        for b, nb in zip(self.biases, nabla_b)]
@@ -104,8 +105,8 @@ class Network(object):
             activations.append(activation)
         # backward pass
         delta = self.cost_derivative(activations[-1], y) * \
-            sigmoid_prime(zs[-1])
-        nabla_b[-1] = delta
+            sigmoid_prime(zs[-1]) # dC/dz = dC/da * da/dz
+        nabla_b[-1] = delta # delta_b and delta_w for the output layer 
         nabla_w[-1] = np.dot(delta, activations[-2].transpose())
         # Note that the variable l in the loop below is used a little
         # differently to the notation in Chapter 2 of the book.  Here,
